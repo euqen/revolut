@@ -1,5 +1,5 @@
-import service from "./service.js";
+import routes from "./routes.js";
 
 export default {
-    startGracefullShutdown: service.startGracefullShutdown,
+    routes,
 }

@@ -1,27 +1,29 @@
 import express from "express";
 import routes from "./routes.js";
-import healthz from "./modules/healthz/index.js";
-
+import db from "./db/index.js";
+import config from "./config/index.js";
 import migrate from "../migrate.js";
+import graceful from "./utils/graceful.js";
+
+migrate(db);
 
 const app = express();
 
 app.use(express.json());
 app.use(routes);
 
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
-});
+const port = config.port;
 
+app.listen(port, () => console.log(`Server is running on port ${port}`));
 
 process.on("SIGINT", async () => {
-  await healthz.startGracefullShutdown();
+  await graceful.startGracefullShutdown();
   app.close();
   process.exit(0);
 });
 
 process.on("SIGTERM", async () => {
-  await healthz.startGracefullShutdown();
+  await graceful.startGracefullShutdown();
   app.close();
   process.exit(0);
 });
