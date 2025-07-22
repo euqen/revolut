@@ -1,6 +1,8 @@
 import express from "express";
 import routes from "./routes.js";
 
+import migrate from "../migrate.js";
+
 const app = express();
 
 app.use(express.json());
