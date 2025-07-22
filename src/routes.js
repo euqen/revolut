@@ -1,5 +1,5 @@
 import express from "express";
-import helloModuleRoutes from "./hello/routes.js";
+import helloModuleRoutes from "./modules/hello/routes.js";
 
 const router = express.Router();
 
