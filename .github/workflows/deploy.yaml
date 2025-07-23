@@ -37,6 +37,7 @@ jobs:
     - name: Build and push
       uses: docker/build-push-action@v6 
       with:
+        context: .
         push: true
         tags: ${{ env.DOCKER_REGISTRY_HOST }}/${{ env.IMAGE }}:${{ env.GIT_HASH_IMAGE_VERSION_SHORT }}
 
