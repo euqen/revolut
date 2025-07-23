@@ -10,6 +10,7 @@ env:
   GC_PROJECT_ID: just-vent-235315
   IMAGE: revolut-hello/app
   GIT_HASH_IMAGE_VERSION_SHORT: 123123
+  GOOGLE_APPLICATION_CREDENTIALS: ./google-cloud-credentials.json
 
 jobs:
   build-and-deploy:
@@ -23,6 +24,9 @@ jobs:
       uses: hashicorp/setup-terraform@v2
       with:
         terraform_version: 1.5.7
+
+    - name: Init necessary variables
+      run: echo -n ${{ secrets.GCP_JSON_KEY }} > $GOOGLE_APPLICATION_CREDENTIALS
 
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3

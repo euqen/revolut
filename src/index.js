@@ -1,11 +1,7 @@
 import express from "express";
 import routes from "./routes.js";
-import db from "./db/index.js";
 import config from "./config/index.js";
-import migrate from "../migrate.js";
 import graceful from "./utils/graceful.js";
-
-migrate(db);
 
 const app = express();
 

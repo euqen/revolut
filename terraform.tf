@@ -14,9 +14,37 @@ variable "git_hash_image_version" { default = "123123" }
     location = "europe-west1"
     client   = "terraform"
 
+    deletion_protection = false
+
     template {
+      scaling {
+        min_instance_count = 1
+        max_instance_count = 2
+      }
+
       containers {
         image = "${var.docker_registry_host}/${var.project_id}/${var.image}:${var.git_hash_image_version}"
+
+        startup_probe {
+          timeout_seconds = 10
+          period_seconds = 10
+          failure_threshold = 3
+          initial_delay_seconds = 5
+
+          http_get {
+            path = "/healthz/liveness"
+          }
+        }
+
+        liveness_probe {
+          timeout_seconds = 10
+          period_seconds = 10
+          failure_threshold = 3
+          
+          http_get {
+            path = "/healthz/readiness"
+          }
+        }
 
         env {
           name = "MYSQL_ROOT_PASSWORD"
@@ -32,12 +60,9 @@ variable "git_hash_image_version" { default = "123123" }
           name = "MYSQL_USER"
           value = "app_user"
         }
-        env {
-            name = "PORT"
-            value = "3000"
-        }
       }
     }
+
   }
 
   resource "google_cloud_run_v2_service_iam_member" "noauth" {
