@@ -39,7 +39,7 @@ jobs:
       with:
         context: .
         push: true
-        tags: ${{ env.DOCKER_REGISTRY_HOST }}/${{ env.IMAGE }}:${{ env.GIT_HASH_IMAGE_VERSION_SHORT }}
+        tags: ${{ env.DOCKER_REGISTRY_HOST }}/${{ env.GC_PROJECT_ID }}/${{ env.IMAGE }}:${{ env.GIT_HASH_IMAGE_VERSION_SHORT }}
 
     - name: Terraform init
       run: terraform init
