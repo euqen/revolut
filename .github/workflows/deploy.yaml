@@ -1,0 +1,40 @@
+name: Blue-Green Deploy
+
+on:
+  push:
+    branches: [main]
+
+env:
+  REGION: europe-west1
+  DOCKER_REGISTRY_HOST: europe-west1-docker.pkg.dev
+  GC_PROJECT_ID: just-vent-235315
+  IMAGE: revolut-hello/app
+  GIT_HASH_IMAGE_VERSION_SHORT: 123123
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Install Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.5.7
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Build and push
+      uses: docker/build-push-action@v6
+      with:
+        push: true
+        tags: ${{ env.DOCKER_REGISTRY_HOST }}/${{ env.IMAGE }}:${{ env.GIT_HASH_IMAGE_VERSION_SHORT }}
+
+      - name: Terraform init
+        run: terraform init
+
+      - name: Terraform apply
+        run: terraform apply -auto-approve -no-color -lock=false -var "git_hash_image_version=${{ env.GIT_HASH_IMAGE_VERSION_SHORT }}"
