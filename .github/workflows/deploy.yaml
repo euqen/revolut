@@ -33,8 +33,8 @@ jobs:
         push: true
         tags: ${{ env.DOCKER_REGISTRY_HOST }}/${{ env.IMAGE }}:${{ env.GIT_HASH_IMAGE_VERSION_SHORT }}
 
-      - name: Terraform init
-        run: terraform init
+    - name: Terraform init
+      run: terraform init
 
-      - name: Terraform apply
-        run: terraform apply -auto-approve -no-color -lock=false -var "git_hash_image_version=${{ env.GIT_HASH_IMAGE_VERSION_SHORT }}"
+    - name: Terraform apply
+      run: terraform apply -auto-approve -no-color -lock=false -var "git_hash_image_version=${{ env.GIT_HASH_IMAGE_VERSION_SHORT }}"
