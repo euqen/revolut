@@ -35,7 +35,7 @@ jobs:
         password: ${{ secrets.GCP_JSON_KEY }}
 
     - name: Build and push
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@v6 
       with:
         push: true
         tags: ${{ env.DOCKER_REGISTRY_HOST }}/${{ env.IMAGE }}:${{ env.GIT_HASH_IMAGE_VERSION_SHORT }}
