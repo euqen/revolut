@@ -5,6 +5,11 @@ variable "docker_registry_host" { default = "europe-west1-docker.pkg.dev" }
 variable "image" { default = "revolut-hello/app" }
 variable "git_hash_image_version" { default = "123123" }
 
+backend "gcs" {
+  bucket = "terraform-state-revolut-hometask"
+  prefix = "terraform/state"
+}
+
  provider "google" {
     project = "${var.project_id}"
   }

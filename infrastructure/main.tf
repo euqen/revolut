@@ -59,6 +59,23 @@ resource "google_artifact_registry_repository" "my-repo" {
   format        = "DOCKER"
 }
 
+resource "google_storage_bucket" "terraform_state" {
+  name = "terraform-state-revolut-hometask"
+  location = var.region
+  storage_class = "STANDARD"
+
+  versioning {
+    enabled = true
+  }
+}
+
+resource "google_storage_bucket_iam_member" "terraform_state_admin" {
+  bucket = google_storage_bucket.terraform_state.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:github-gcr-pull@${var.project_id}.iam.gserviceaccount.com"
+}
+
+
 variable "project_id" { default = "just-vent-235315" }
 variable "region" { default = "europe-west1" }
 variable "zone" { default = "europe-west1-b" }
