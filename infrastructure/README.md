@@ -1,9 +1,5 @@
-sudo docker network create database_network
-sudo docker network create app_network
-
 sudo docker run -d \
   --name mysql \
-  --network database_network \
   -p 3306:3306 \
   -v /var/lib/mysql:/var/lib/mysql \
   -e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} \

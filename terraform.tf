@@ -59,13 +59,17 @@ terraform {
         }
 
         env {
-          name = "MYSQL_ROOT_PASSWORD"
-          value = "XXXXXX"
+          name = "MYSQL_PASSWORD"
+          value_source {
+            secret_key_ref {
+              name = "mysql-password"
+            }
+          }
         }
 
         env {
           name = "MYSQL_DATABASE"
-          value = "app_Db"
+          value = "appdb"
         }
 
         env {
