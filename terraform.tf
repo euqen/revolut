@@ -62,7 +62,7 @@ terraform {
           name = "MYSQL_PASSWORD"
           value_source {
             secret_key_ref {
-              name = "mysql-password"
+              secret = "mysql-password"
             }
           }
         }
