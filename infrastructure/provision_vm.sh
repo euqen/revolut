@@ -1,20 +1,17 @@
 #!/bin/bash
+set -e
 
-export MYSQL_ROOT_PASSWORD=123123
-export MYSQL_DATABASE=app_Db
-export MYSQL_USER=app_user
-export MYSQL_PASSWORD=123123
+DB_FILE="appdb.sqlite"
 
-sudo apt-get update
-sudo apt-get install ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
-sudo chmod a+r /etc/apt/keyrings/docker.asc
+echo "Updating package list..."
+sudo apt update
 
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
-  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-sudo apt-get update
-sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
+echo "Installing SQLite3..."
+sudo apt install -y sqlite3
 
+echo "Creating SQLite database file: ${DB_FILE} and initializing table..."
+
+echo "SQLite database and initial table/user created in ${DB_FILE}."
+
+echo "You can open the database with:"
+echo "sqlite3 ${DB_FILE}"

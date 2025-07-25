@@ -1,13 +1,9 @@
 import { Sequelize } from "sequelize";
 import config from "../config/index.js";
 
-const sequelize = new Sequelize(config.db.mock ? 'sqlite:memory' : {
+const sequelize = new Sequelize({
     dialect: config.db.dialect,
-    host: config.db.host,
-    username: config.db.username,
-    password: config.db.password,
-    database: config.db.database,
-    port: config.db.port,
+    storage: config.db.storage,
 });
 
 export default sequelize;

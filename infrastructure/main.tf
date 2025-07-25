@@ -57,6 +57,19 @@ resource "google_compute_firewall" "allow_ssh" {
   target_tags = ["app-mysql-server"]
 }
 
+resource "google_compute_firewall" "allow_mysql_traffic" {
+  name    = "allow-mysql-traffic"
+  network = google_compute_network.vpc.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["3306"]
+  }
+
+  source_ranges = ["10.0.0.0/24"]
+  source_tags = ["app-mysql-server"]
+}
+
 resource "google_artifact_registry_repository" "my-repo" {
   location      = var.region
   repository_id = "revolut-hello"
@@ -85,6 +98,17 @@ module "deployer_sa" {
     "roles/iam.serviceAccountUser"
   ]
 }
+
+  resource "google_storage_bucket" "revolut_hello_app_bucket" {
+    name     = "revolut-hello-app-sqlite-storage"
+    location = var.region
+  }
+
+  resource "google_storage_bucket_iam_member" "revolut_hello_app_bucket_admin" {
+    bucket = google_storage_bucket.revolut_hello_app_bucket.name
+    role   = "roles/storage.admin"
+    member = "serviceAccount:deployer@${var.project_id}.iam.gserviceaccount.com"
+  }
 
 resource "google_storage_bucket_iam_member" "terraform_state_admin" {
   bucket = google_storage_bucket.terraform_state.name

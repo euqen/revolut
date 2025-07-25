@@ -54,35 +54,21 @@ terraform {
         }
 
         env {
-          name = "MYSQL_HOST"
-          value = "10.0.0.9"
+          name = "DB_STORAGE"
+          value = "/app/db/appdb.sqlite"
         }
 
-        env {
-          name = "MYSQL_PASSWORD"
-          value_source {
-            secret_key_ref {
-              secret = "mysql-password"
-              version = "latest"
-            }
-          }
-        }
-
-        env {
-          name = "MYSQL_DATABASE"
-          value = "appdb"
-        }
-
-        env {
-          name = "MYSQL_USER"
-          value = "app_user"
+        volume_mounts {
+          name = "revolut-hello-app-sqlite-storage"
+          mount_path = "/app/db"
         }
       }
 
-      vpc_access {
-        network_interfaces {
-          network    = "hello-app-vpc"
-          subnetwork = "hello-app-subnet"
+      volumes {
+        name = "revolut-hello-app-sqlite-storage"
+        gcs {
+          bucket = "revolut-hello-app-sqlite-storage"
+          read_only = false
         }
       }
     }
