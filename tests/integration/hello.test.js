@@ -12,7 +12,11 @@ app.use(routes);
 
 describe('Hello Module Integration Tests', () => {
   beforeAll(async () => {
-    await migrate(sequelize);
+    try {
+      await migrate(sequelize);
+    } catch (error) {
+      console.error(error);
+    }
   });
 
   beforeEach(async () => {

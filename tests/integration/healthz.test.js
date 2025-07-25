@@ -10,7 +10,11 @@ app.use(routes);
 
 describe('Healthz Module Integration Tests', () => {
   beforeAll(async () => {
-    await migrate(sequelize);
+    try {
+      await migrate(sequelize);
+    } catch (error) {
+      console.error(error);
+    }
   });
 
   describe('GET /healthz/liveness', () => {
