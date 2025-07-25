@@ -3,6 +3,7 @@ import express from 'express';
 import routes from '../../src/routes.js';
 import migrate from '../../migrate.js';
 import User from '../../src/modules/hello/model.js';
+import sequelize from '../../src/db/index.js';
 
 // Create test app
 const app = express();
@@ -11,8 +12,7 @@ app.use(routes);
 
 describe('Hello Module Integration Tests', () => {
   beforeAll(async () => {
-    await migrate();
-    await User.sync();
+    await migrate(sequelize);
   });
 
   beforeEach(async () => {

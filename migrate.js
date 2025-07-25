@@ -1,8 +1,7 @@
 
 import { Umzug, SequelizeStorage } from 'umzug'
-import sequelize from './src/db/index.js'
 
-async function migrate() {
+async function migrate(sequelize) {
   const umzug = new Umzug({
       migrations: {glob: 'src/migrations/*.js'},
       context: sequelize.getQueryInterface(),

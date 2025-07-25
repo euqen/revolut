@@ -2,6 +2,7 @@ import request from 'supertest';
 import express from 'express';
 import routes from '../../src/routes.js';
 import migrate from '../../migrate.js';
+import sequelize from '../../src/db/index.js';
 
 const app = express();
 app.use(express.json());
@@ -9,7 +10,7 @@ app.use(routes);
 
 describe('Healthz Module Integration Tests', () => {
   beforeAll(async () => {
-    await migrate();
+    await migrate(sequelize);
   });
 
   describe('GET /healthz/liveness', () => {
