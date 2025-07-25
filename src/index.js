@@ -2,6 +2,7 @@ import express from "express";
 import routes from "./routes.js";
 import config from "./config/index.js";
 import graceful from "./utils/graceful.js";
+import migrate from "../migrate.js";
 
 const app = express();
 
@@ -10,7 +11,10 @@ app.use(routes);
 
 const port = config.port;
 
-app.listen(port, () => console.log(`Server is running on port ${port}`));
+app.listen(port, async () => {
+  await migrate();
+  console.log(`Server is running on port ${port}`);
+});
 
 process.on("SIGINT", async () => {
   await graceful.startGracefullShutdown();

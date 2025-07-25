@@ -15,4 +15,4 @@ async function migrate() {
   console.log("Migrations completed");
 }
 
-export default migrate();
+export default migrate;

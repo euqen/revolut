@@ -1,7 +1,17 @@
 import request from 'supertest';
-import app from '../../src/index.js';
+import express from 'express';
+import routes from '../../src/routes.js';
+import migrate from '../../migrate.js';
+
+const app = express();
+app.use(express.json());
+app.use(routes);
 
 describe('Healthz Module Integration Tests', () => {
+  beforeAll(async () => {
+    await migrate();
+  });
+
   describe('GET /healthz/liveness', () => {
     it('should return 200 with OK message', async () => {
       const response = await request(app)
