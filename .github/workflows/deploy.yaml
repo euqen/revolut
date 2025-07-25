@@ -9,7 +9,7 @@ env:
   DOCKER_REGISTRY_HOST: europe-west1-docker.pkg.dev
   GC_PROJECT_ID: just-vent-235315
   IMAGE: revolut-hello/app
-  GIT_HASH_IMAGE_VERSION_SHORT: 123123
+  GIT_HASH_IMAGE_VERSION_SHORT: ${{ github.sha }}
   GOOGLE_APPLICATION_CREDENTIALS: ./google-cloud-credentials.json
 
 jobs:

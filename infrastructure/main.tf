@@ -4,6 +4,10 @@ provider "google" {
   zone    = var.zone
 }
 
+locals {
+  default_service_account = "514230164013-compute@developer.gserviceaccount.com"
+}
+
 resource "google_compute_network" "vpc" {
   name = "hello-app-vpc"
 }
@@ -88,18 +92,18 @@ resource "google_storage_bucket_iam_member" "terraform_state_admin" {
   member = "serviceAccount:deployer@${var.project_id}.iam.gserviceaccount.com"
 }
 
-resource "google_secret_manager_secret_iam_member" "secret_accessor" {
-  project = google_secret_manager_secret.mysql_root_password.project
-  secret_id = google_secret_manager_secret.mysql_root_password.secret_id
-  role = "roles/secretmanager.secretAccessor"
-  member = "serviceAccount:deployer@${var.project_id}.iam.gserviceaccount.com"
-}
-
 resource "google_secret_manager_secret_iam_member" "secret_accessor_mysql_password" {
   project = google_secret_manager_secret.mysql_password.project
   secret_id = google_secret_manager_secret.mysql_password.secret_id
   role = "roles/secretmanager.secretAccessor"
   member = "serviceAccount:deployer@${var.project_id}.iam.gserviceaccount.com"
+}
+
+resource "google_secret_manager_secret_iam_member" "mysql_password_accessor" {
+  project = google_secret_manager_secret.mysql_password.project
+  secret_id = google_secret_manager_secret.mysql_password.secret_id
+  role   = "roles/secretmanager.secretAccessor"
+  member = "serviceAccount:${local.default_service_account}"
 }
 
 resource "google_secret_manager_secret" "mysql_password" {
