@@ -3,7 +3,7 @@ variable "region" { default = "europe-west1" }
 variable "app_port" { default = "3000"}
 variable "docker_registry_host" { default = "europe-west1-docker.pkg.dev" }
 variable "image" { default = "revolut-hello/app" }
-variable "git_hash_image_version" { default = "123123" }
+variable "git_hash_image_version" { type = string }
 
 terraform {
   backend "gcs" {
@@ -13,8 +13,8 @@ terraform {
 }
 
  provider "google" {
-    project = "${var.project_id}"
-  }
+  project = "${var.project_id}"
+}
 
   resource "google_cloud_run_v2_service" "revolut_hello_app" {
     name     = "revolut-hello"
@@ -54,6 +54,11 @@ terraform {
         }
 
         env {
+          name = "MYSQL_HOST"
+          value = "10.0.0.9"
+        }
+
+        env {
           name = "MYSQL_ROOT_PASSWORD"
           value = "XXXXXX"
         }
@@ -66,6 +71,13 @@ terraform {
         env {
           name = "MYSQL_USER"
           value = "app_user"
+        }
+      }
+
+      vpc_access {
+        network_interfaces {
+          network    = "hello-app-vpc"
+          subnetwork = "hello-app-subnet"
         }
       }
     }
