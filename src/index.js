@@ -2,8 +2,6 @@ import express from "express";
 import routes from "./routes.js";
 import config from "./config/index.js";
 import graceful from "./utils/graceful.js";
-import migrate from "../migrate.js";
-import sequelize from "./db/index.js";
 
 const app = express();
 
@@ -12,8 +10,7 @@ app.use(routes);
 
 const port = config.port;
 
-app.listen(port, async () => {
-  await migrate(sequelize);
+app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 

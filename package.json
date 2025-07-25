@@ -4,9 +4,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "test": "npm run migrate && node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "start": "npm run migrate && node src/index.js",
+    "dev": "nodemon src/index.js",
+    "migrate": "node bin/migrate.js"
   },
   "author": "",
   "license": "ISC",

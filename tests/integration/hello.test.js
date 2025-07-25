@@ -1,9 +1,7 @@
 import request from 'supertest';
 import express from 'express';
 import routes from '../../src/routes.js';
-import migrate from '../../migrate.js';
 import User from '../../src/modules/hello/model.js';
-import sequelize from '../../src/db/index.js';
 
 // Create test app
 const app = express();
@@ -11,14 +9,6 @@ app.use(express.json());
 app.use(routes);
 
 describe('Hello Module Integration Tests', () => {
-  beforeAll(async () => {
-    try {
-      await migrate(sequelize);
-    } catch (error) {
-      console.error(error);
-    }
-  });
-
   beforeEach(async () => {
     try {
       await User.destroy({ where: {} });
