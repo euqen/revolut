@@ -63,6 +63,7 @@ terraform {
           value_source {
             secret_key_ref {
               secret = "mysql-password"
+              version = "latest"
             }
           }
         }

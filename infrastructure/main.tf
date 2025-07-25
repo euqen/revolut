@@ -78,6 +78,7 @@ module "deployer_sa" {
   project_roles = [
     "roles/artifactregistry.writer",
     "roles/run.admin",
+    "roles/iam.serviceAccountUser"
   ]
 }
 
