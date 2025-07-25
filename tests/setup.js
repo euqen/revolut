@@ -9,4 +9,7 @@ global.console = {
   error: jest.fn(),
 };
 
-jest.setTimeout(10000); 
+jest.setTimeout(10000);
+
+// Fix for circular reference issues with Sequelize in Jest
+process.env.NODE_ENV = 'test'; 
