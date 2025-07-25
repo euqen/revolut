@@ -8,68 +8,6 @@ locals {
   default_service_account = "514230164013-compute@developer.gserviceaccount.com"
 }
 
-resource "google_compute_network" "vpc" {
-  name = "hello-app-vpc"
-}
-
-resource "google_compute_subnetwork" "subnet" {
-  name          = "hello-app-subnet"
-  ip_cidr_range = "10.0.0.0/24"
-  region        = var.region
-  network       = google_compute_network.vpc.name
-}
-
-resource "google_compute_instance" "vm" {
-  name         = "hello-vm"
-  machine_type = "f1-micro"
-  zone         = var.zone
-
-  tags = ["app-mysql-server"]
-
-  boot_disk {
-    initialize_params {
-      image = "debian-cloud/debian-11"
-    }
-  }
-
-  network_interface {
-    subnetwork         = google_compute_subnetwork.subnet.name
-    access_config {}
-  }
-
-  metadata = {
-    ssh-keys = "${var.ssh_user}:${file(var.ssh_public_key_path)}"
-  }
-
-  metadata_startup_script = file("provision_vm.sh")
-}
-
-resource "google_compute_firewall" "allow_ssh" {
-  name    = "allow-ssh-traffic"
-  network = google_compute_network.vpc.name
-
-  allow {
-    protocol = "tcp"
-    ports    = ["22"]
-  }
-
-  source_ranges = ["0.0.0.0/0"]
-  target_tags = ["app-mysql-server"]
-}
-
-resource "google_compute_firewall" "allow_mysql_traffic" {
-  name    = "allow-mysql-traffic"
-  network = google_compute_network.vpc.name
-
-  allow {
-    protocol = "tcp"
-    ports    = ["3306"]
-  }
-
-  source_ranges = ["10.0.0.0/24"]
-  source_tags = ["app-mysql-server"]
-}
-
 resource "google_artifact_registry_repository" "my-repo" {
   location      = var.region
   repository_id = "revolut-hello"
@@ -99,57 +37,21 @@ module "deployer_sa" {
   ]
 }
 
-  resource "google_storage_bucket" "revolut_hello_app_bucket" {
-    name     = "revolut-hello-app-sqlite-storage"
-    location = var.region
-  }
+resource "google_storage_bucket" "revolut_hello_app_bucket" {
+  name     = "revolut-hello-app-sqlite-storage"
+  location = var.region
+}
 
-  resource "google_storage_bucket_iam_member" "revolut_hello_app_bucket_admin" {
-    bucket = google_storage_bucket.revolut_hello_app_bucket.name
-    role   = "roles/storage.admin"
-    member = "serviceAccount:deployer@${var.project_id}.iam.gserviceaccount.com"
-  }
+resource "google_storage_bucket_iam_member" "revolut_hello_app_bucket_admin" {
+  bucket = google_storage_bucket.revolut_hello_app_bucket.name
+  role   = "roles/storage.admin"
+  member = "serviceAccount:deployer@${var.project_id}.iam.gserviceaccount.com"
+}
 
 resource "google_storage_bucket_iam_member" "terraform_state_admin" {
   bucket = google_storage_bucket.terraform_state.name
   role   = "roles/storage.objectUser"
   member = "serviceAccount:deployer@${var.project_id}.iam.gserviceaccount.com"
-}
-
-resource "google_secret_manager_secret_iam_member" "secret_accessor_mysql_password" {
-  project = google_secret_manager_secret.mysql_password.project
-  secret_id = google_secret_manager_secret.mysql_password.secret_id
-  role = "roles/secretmanager.secretAccessor"
-  member = "serviceAccount:deployer@${var.project_id}.iam.gserviceaccount.com"
-}
-
-resource "google_secret_manager_secret_iam_member" "mysql_password_accessor" {
-  project = google_secret_manager_secret.mysql_password.project
-  secret_id = google_secret_manager_secret.mysql_password.secret_id
-  role   = "roles/secretmanager.secretAccessor"
-  member = "serviceAccount:${local.default_service_account}"
-}
-
-resource "google_secret_manager_secret" "mysql_password" {
-  secret_id = "mysql-password"
-  replication {
-    user_managed {
-      replicas {
-          location = var.region
-      }
-    }
-  }
-}
-
-resource "google_secret_manager_secret" "mysql_root_password" {
-  secret_id = "mysql-root-password"
-  replication {
-    user_managed {
-      replicas {
-          location = var.region
-      }
-    }
-  }
 }
 
 variable "project_id" { default = "just-vent-235315" }
