@@ -57,10 +57,3 @@ resource "google_storage_bucket_iam_member" "terraform_state_admin" {
 variable "project_id" { default = "just-vent-235315" }
 variable "region" { default = "europe-west1" }
 variable "zone" { default = "europe-west1-b" }
-variable "app_port" { default = "3000"}
-variable "ssh_public_key_path" { default = "~/.ssh/id_rsa.pub" }
-variable "ssh_user" { default = "euqen" }
-
-output "vm_ip" {
-  value = google_compute_instance.vm.network_interface[0].access_config[0].nat_ip
-}
