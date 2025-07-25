@@ -54,7 +54,7 @@ resource "google_compute_firewall" "allow_ssh" {
   }
 
   source_ranges = ["0.0.0.0/0"]
-  target_tags = ["app-server"]
+  target_tags = ["app-mysql-server"]
 }
 
 resource "google_artifact_registry_repository" "my-repo" {
