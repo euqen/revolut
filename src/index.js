@@ -23,3 +23,5 @@ process.on("SIGTERM", async () => {
   app.close();
   process.exit(0);
 });
+
+export default app;

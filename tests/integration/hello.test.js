@@ -1,24 +1,8 @@
 import request from 'supertest';
-import express from 'express';
-import routes from '../../src/routes.js';
-import db from '../../src/db/index.js';
-import migrate from '../../migrate.js';
+import app from '../../src/index.js';
 import User from '../../src/modules/hello/model.js';
 
-const app = express();
-app.use(express.json());
-app.use(routes);
-
 describe('Hello Module Integration Tests', () => {
-  beforeAll(async () => {
-    await migrate(db);
-    await User.sync();
-  });
-
-  afterAll(async () => {
-    await db.close();
-  });
-
   beforeEach(async () => {
     try {
       await User.destroy({ where: {} });

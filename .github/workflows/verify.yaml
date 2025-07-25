@@ -3,12 +3,10 @@ name: Verify Application
 on:
   pull_request:
     branches: [ main ]
-  push:
-    branches: [ main ]
 
 jobs:
   verify:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     
     steps:
     - name: Checkout code
@@ -26,16 +24,5 @@ jobs:
     - name: Run tests
       run: npm test
       
-    - name: Stop application
-      run: |
-        if [ -f app.pid ]; then
-          kill $(cat app.pid) || true
-          rm app.pid
-        fi
-        
-    - name: Upload test coverage
-      uses: codecov/codecov-action@v3
-      if: always()
-      with:
-        file: ./coverage/lcov.info
-        fail_ci_if_error: false
+    # TODO:
+    # add test coverage upload and puglishing of testing result into the pull request
