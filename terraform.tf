@@ -75,7 +75,12 @@ terraform {
 
         env {
           name = "DB_PASSWORD"
-          value = ""
+          value_source {
+            secret_key_ref {
+              secret = "revolut-hello-app-db-password"
+              version = "latest"
+            }
+          }
         }
 
         env {

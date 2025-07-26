@@ -96,6 +96,37 @@ DB_DIALECT=sqlite
 
 ### Docker Development
 
+#### Using Docker Compose (Recommended)
+
+1. **Start with MySQL Database**
+   ```bash
+   # Start all services
+   docker-compose up -d
+   
+   # View logs
+   docker-compose logs -f app
+   
+   # Stop services
+   docker-compose down
+   ```
+
+2. **Development Mode**
+   ```bash
+   # Start in development mode with hot reload
+   docker-compose -f docker-compose.yaml -f docker-compose.override.yaml up -d
+   ```
+
+3. **Individual Container Management**
+   ```bash
+   # Build and run app container only
+   docker-compose up app
+   
+   # Access MySQL directly
+   docker-compose exec mysql mysql -u revolut_user -p revolut-hello-app-db
+   ```
+
+#### Using Docker Directly
+
 1. **Build Image**
    ```bash
    docker build -t revolut-hello-app .
@@ -108,8 +139,19 @@ DB_DIALECT=sqlite
 
 ### Database Setup
 
-#### SQLite
-The application uses SQLite by default. The database file is automatically created on project startup.
+#### MySQL (Docker Compose)
+The application is configured to use MySQL when running with Docker Compose. The database is automatically created and configured with the following credentials:
+
+- **Host**: `mysql` (container name)
+- **Port**: `3306`
+- **Database**: `revolut-hello-app-db`
+- **User**: `revolut_user`
+- **Password**: `revolut_password`
+
+The database will be automatically migrated on application startup.
+
+#### SQLite (Local Development)
+The application uses SQLite by default for local development. The database file is automatically created on project startup.
 
 ## Code Quality & Architecture
 

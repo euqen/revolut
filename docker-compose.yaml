@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: revolut-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: revolut-hello-app-db
+      MYSQL_USER: revolut_user
+      MYSQL_PASSWORD: revolut_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+    networks:
+      - revolut-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  app:
+    build: .
+    container_name: revolut-app
+    restart: unless-stopped
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+      - DB_DIALECT=mysql
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=revolut_user
+      - DB_PASSWORD=revolut_password
+      - DB_NAME=revolut-hello-app-db
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - revolut-network
+    volumes:
+      - ./src:/app/src
+      - ./bin:/app/bin
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  revolut-network:
+    driver: bridge

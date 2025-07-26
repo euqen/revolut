@@ -76,6 +76,19 @@ module "deployer_sa" {
   ]
 }
 
+resource "google_secret_manager_secret" "revolut_hello_app_db_password" {
+  secret_id = "revolut-hello-app-db-password"
+  replication {
+    auto {}
+  }
+}
+
+resource "google_secret_manager_secret_iam_member" "revolut_hello_app_db_password_access" {
+  secret_id = google_secret_manager_secret.revolut_hello_app_db_password.id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${local.default_service_account}"
+}
+
 resource "google_storage_bucket" "revolut_hello_app_bucket" {
   name     = "revolut-hello-app-sqlite-storage"
   location = var.region
