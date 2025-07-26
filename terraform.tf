@@ -54,6 +54,11 @@ terraform {
         }
 
         env {
+          name = "DB_DIALECT"
+          value = "mysql"
+        }
+
+        env {
           name = "DB_HOST"
           value = "10.107.0.5"
         }
