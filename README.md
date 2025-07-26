@@ -7,19 +7,24 @@ A test Node.js API service built with Express.js, featuring comprehensive infras
 ### Overview
 This project demonstrates a API service that follows modern DevOps practices and architecture principles.
 
-### Architecture Design
+Application is available under this url:
+
+https://revolut-hello-514230164013.europe-west1.run.app
+
+### Architecture
+
+![SystemDiagram](./System-diagram.png)
 
 #### Application Layer
 - **Framework**: Express.js 5.x with ES modules
 - **Language**: Node.js 22 (LTS)
-- **Database**: SQLite
+- **Database**: Cloud SQL MySQL 8
 - **Containerization**: Docker with Alpine Linux base image
-- **Health Checks**: Liveness and readiness probes for Kubernetes orchestration
 
 #### Infrastructure Layer
 - **Cloud Platform**: Google Cloud Platform (GCP)
 - **Compute**: Cloud Run v2 (serverless containers)
-- **Storage**: Google Cloud Storage for persistent SQLite database
+- **Storage**: Google Cloud SQL instance MySQL
 - **Infrastructure as Code**: Terraform for provisioning and management
 
 #### Design Decisions Justification
@@ -30,11 +35,10 @@ This project demonstrates a API service that follows modern DevOps practices and
    - Fits in GCP free tier
    - Built-in security and networking
 
-2. **SQLite with Cloud Storage**:
-   - Simplified deployment (no external database dependencies)
-   - Cost-effective for small to medium workloads, within GCP Free Tier
-   - Easy backup and restore via GCS
-   - Can be migrated to managed databases by change 1 code line
+2. **Cloud Storage vs Self Managed SQL instance**:
+   - Simplified deployment (much less operational burden)
+   - Cost-effective for small to medium workloads
+   - Build it backups and point in time recovery
 
 3. **Terraform for IaC**:
    - Declarative infrastructure management
@@ -43,65 +47,44 @@ This project demonstrates a API service that follows modern DevOps practices and
    - Integration with GCP's native services
 
 4. **Deployment Strategy**:
-   - Zero-downtime deployments within Cloud Run
+   - Zero-downtime deployments within Cloud Run revisions
    - Easy rollback capabilities
    - Risk mitigation for production releases
 
 
 Sidenotes:
 
-1. Infrastructure defined in `infrastructure` folder should be separated from the application code base and managed separately by DevOps/ Cloud team. It was kept here to simplify things and not create different repositories. Infrastructure's state declared in that folder should be stored in remote backend which is not implemented in this project, it's currently managed just manually.
+1. Infrastructure provisioning. Infrastructure defined in `infrastructure` folder should be separated from the application code base and managed separately by DevOps / Cloud team. It was kept here to simplify things and not create different repositories. Infrastructure's state declared in that folder should be stored in remote backend which is not implemented in this project, it's currently managed just manually from infrastructure administrator laptop.
 
-2. Migrations are declared in `src/migrations` folder. Each migration could contain either schema migration or data migration or both. Migration automatically applied whenever application starts. When application deployed having multiple replicas, db migrations will execute in every replica. For now in CLoud Run it would not be a problem because we don't have any traffic here. But in real life projects it could create problems. Therefore, there could be 2 potential options: a) separate migrations to cloud run job and execute job before rolling out the application (removes the concurency) b) implement migration table locking and in case of 2 or more concurrent replicas start applying migrations concurrently, one of them acquire lock, others will wait (concurrency control)
+2. Migrations. Migrations are declared in `src/migrations` folder. Each migration could contain either schema migration or data migration or both. Migration automatically applied whenever application starts. When application deployed having multiple replicas, db migrations will execute in every replica. For now in Cloud Run it would not be a problem because we don't have any traffic here which requires multiple replicas. But in real life projects it could create problems. Therefore, there could be 2 potential options to solve this problem: a) separate migrations to cloud run job and execute job before rolling out the application (removes the concurency) b) implement migration table locking and in case of 2 or more concurrent replicas start applying migrations concurrently, one of them acquire lock, others will wait (concurrency control)
 
-3. Database backups. Again, for simplification I have not implemented any process for backuping data. But, since we use Cloud storage as a eventual storage where SQLite db file is stored, we could add syncing to another backup bucket to keep separate copy. It could be done periodically again using cloud run. In real life, it's obviously would be different and backups could be made using daatabase read replica, to avoid any kind of load or influence on the database which used to serve real traffic. Also some backup capabilities are already enabled by cloud provider as point in time recovery or automatic backups.
+3. Database backups. Again, for simplification I have not implemented any additional process for backuping data since we use Cloud SQL instance comes with build in backup capability. It could be done periodically additionally again using cloud run. In real life, it's obviously would be different and backups could be made using daatabase read replica, to avoid any kind of load or influence on the database which used to serve real traffic
+
+4. Zero-downtime deployments. This is archivied by using cloud run. Cloud run uses revisions to deploy the application. If new revision fails to start or serve traffic, old revision is still active and serving. There are capabilities to gradual moving traffic to the new revision, which is in my opinion outside of the project scope.
+
+5. Artifacts. On every push into main there will de a deployment and image created. Every image has git sha hash as tag. On production environment in could be more complicated, for example we could decide to use git tags and tag images accordingly, to keep more versioned approach. Also I find semver quite useful for that.
+
+6. Logging. All logs produced by cloud run application are retained in GCP logs bucket.
+
+7. Security considerations. 
+a) All secrets values are stored in GCP secret manager. The GCP secret is provision using terraform. See infrastructure folder. The secret value is provisioned manually by administrator. 
+b) Service accounts are used for deployment. Least privilege approach is used to assign necessary roles. Service account key is manually created and provisioned to GitHub actions secrets by administrator.
+c) Cloud Run helps to setup necessary certificates and https in exposed endpoint, therefore there is no work to be done within this project scope here
+d) CloudSQL instance currently allows unencrypted traffic. On production system it's recommended to enable only SSL connections. 
 
 ## Local Setup & Development
 
 ### Prerequisites
 - Node.js 22.x
-- Docker
+- Docker and docker-compose
 - Terraform 1.5.7+
-- Google Cloud SDK (for deployment)
 
-### Environment Variables
-Create a `.env` file in the root directory based on `.env.example`:
+### One Click Local Development Setup 
 
-```bash
-PORT=3003
-DB_DIALECT=sqlite
-```
-
-### Local Development Setup
-
-1. **Install Dependencies**
-   ```bash
-   npm install
-   ```
-
-2. **Run Database Migrations**
-   ```bash
-   npm run migrate
-   ```
-
-3. **Start Development Server**
-   ```bash
-   npm run dev
-   ```
-
-4. **Run Tests**
-   ```bash
-   npm test
-   ```
-
-### Docker Development
-
-#### Using Docker Compose (Recommended)
-
-1. **Start with MySQL Database**
+1. **Start**
    ```bash
    # Start all services
-   docker-compose up -d
+   docker-compose up
    
    # View logs
    docker-compose logs -f app
@@ -110,19 +93,9 @@ DB_DIALECT=sqlite
    docker-compose down
    ```
 
-2. **Development Mode**
+2. **Run Tests**
    ```bash
-   # Start in development mode with hot reload
-   docker-compose -f docker-compose.yaml -f docker-compose.override.yaml up -d
-   ```
-
-3. **Individual Container Management**
-   ```bash
-   # Build and run app container only
-   docker-compose up app
-   
-   # Access MySQL directly
-   docker-compose exec mysql mysql -u revolut_user -p revolut-hello-app-db
+   npm test
    ```
 
 #### Using Docker Directly
@@ -149,11 +122,6 @@ The application is configured to use MySQL when running with Docker Compose. The
 - **Password**: `revolut_password`
 
 The database will be automatically migrated on application startup.
-
-#### SQLite (Local Development)
-The application uses SQLite by default for local development. The database file is automatically created on project startup.
-
-## Code Quality & Architecture
 
 ### Project Structure
 ```
@@ -192,7 +160,6 @@ revolut-hometask/
 - **Dependencies**: Production and development dependencies properly separated
 - **Scripts**: Standardized npm scripts for common operations
 
-
 #### Infrastructure Security
 - **IAM Integration**: Google Cloud IAM for service authentication
 - **Network Policies**: Cloud Run's built-in network security
@@ -207,9 +174,8 @@ revolut-hometask/
 - **Rollback Support**: Downward migrations for schema rollbacks
 
 #### Backup Strategy
-- **Automated Backups**: GCS-based backup for SQLite databases
-- **Point-in-Time Recovery**: Database snapshots via Cloud Storage
-- **Cross-Region Replication**: GCS multi-region storage for disaster recovery
+- **Automated Backups**: Managed backups for Cloud SQL instance
+- **Point-in-Time Recovery**: Enabled point in time recovery for Cloud SQL instance
 
 #### Replication (Future Enhancement)
 - **Read Replicas**: Can be implemented with managed database services
@@ -240,15 +206,3 @@ revolut-hometask/
 - **Logging**: Structured logging for application events
 - **Metrics**: Cloud Run built-in metrics and monitoring
 - **Alerting**: Cloud Monitoring integration (configurable)
-
-## 🧪 Testing
-
-### Test Structure
-- **Integration Tests**: API endpoint testing with database
-
-### Running Tests
-```bash
-# Run all tests
-npm test
-
-```
