@@ -70,7 +70,7 @@ terraform {
 
         env {
           name = "DB_USER"
-          value = "root"
+          value = "revolut_db_user"
         }
 
         env {
