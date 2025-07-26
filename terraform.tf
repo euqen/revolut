@@ -54,23 +54,38 @@ terraform {
         }
 
         env {
-          name = "DB_STORAGE"
-          value = "/app/db/appdb.sqlite"
+          name = "DB_HOST"
+          value = "10.107.0.5"
         }
 
-        volume_mounts {
-          name = "revolut-hello-app-sqlite-storage"
-          mount_path = "/app/db"
+        env {
+          name = "DB_PORT"
+          value = "3306"
+        }
+
+        env {
+          name = "DB_USER"
+          value = "root"
+        }
+
+        env {
+          name = "DB_PASSWORD"
+          value = ""
+        }
+
+        env {
+          name = "DB_NAME"
+          value = "revolut-hello-app-db"
         }
       }
 
-      volumes {
-        name = "revolut-hello-app-sqlite-storage"
-        gcs {
-          bucket = "revolut-hello-app-sqlite-storage"
-          read_only = false
+      vpc_access {
+        egress = "PRIVATE_RANGES_ONLY"
+        network_interfaces {
+          network = "revolut-hello-app-network"
         }
       }
+
     }
 
   }
