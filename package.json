@@ -6,7 +6,7 @@
   "scripts": {
     "test": "npm run migrate && node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "start": "npm run migrate && node src/index.js",
-    "dev": "nodemon src/index.js",
+    "dev": "npm run migrate && nodemon src/index.js",
     "migrate": "node bin/migrate.js"
   },
   "author": "",

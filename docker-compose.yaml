@@ -36,6 +36,7 @@ services:
       - DB_USER=revolut_user
       - DB_PASSWORD=revolut_password
       - DB_NAME=revolut-hello-app-db
+    command: npm run dev
     depends_on:
       mysql:
         condition: service_healthy
